@@ -38,6 +38,7 @@
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
@@ -115,7 +116,7 @@
           <div class="column has-text-centered">
             <div class="publication-links">
               <!-- PDF Link. -->
-
+                
               <span class="link-block">
                 <a href="https://arxiv.org/abs/2510.19296" class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
@@ -204,19 +205,20 @@
         <div class="column is-four-fifths">
           <h2 class="title is-3">Motivation</h2>
           
+          <div class="content has-text-justified">
+            <p>
+              In contrast to high-level program language that defines sequential execution behavior, Verilog code specifies the structural interconnection of hardware gates and wires, granting inherent independence between different output signals. This characteristic enables scenarios where individual signal implementations remain functionally correct despite errors in the overall module implementation.
+            </p>
+          </div>
           <div class="container is-max-desktop">
             <img src="./static/images/motivation.svg" height="100%">
           </div>
 
           <div class="content has-text-justified">
             <p>
-              Due to Verilog's characteristics of relatively independent and parallel signals, we can extract the code implementation of a specific signal through AST. 
-              Here there are two output signals, we can separately extract their related code implementations. 
-              Among them, the implementation of signal <span style="color: orange;">a</span> is incorrect while signal <span style="color: green;">d</span> is correctly implemented. 
-              We can utilize the code implementation of the correct signal <span style="color: green;">d</span> to provide functional correctness rewards for RL.
+              For example, the signal <span style="color: orange;">a</span> implement is incorrect and the signal <span style="color: green;">d</span> is correct. We can easily extract signal <span style="color: green;">d</span> implementation from the top module through abstract syntax tree (AST). Such partially valid signal-level implementations can be leveraged within RL frameworks to derive meaningful functional rewards, thereby expanding the effective sample space for RL optimization.
             </p>
           </div>
-
         </div>
       </div>
     </div>
@@ -226,7 +228,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
-          <h2 class="title is-3">Overview</h2>
+          <h2 class="title is-3">Method</h2>
 
           <div class="container is-max-desktop">
             <img src="./static/images/overview.svg" height="100%">
@@ -234,15 +236,23 @@
 
           <div class="content has-text-justified">
             <p>
-              (a) The proposed QiMeng-SALV comprises three stage: signal-aware verification, signal-aware code
-              extraction, and signal-aware DPO training. <br>
-              (b) In signal-aware verification stage, verification is performed by analyzing output signal discrepancies
-              between generated modules and their reference counterparts, allowing precise identification of correctly
-              functioning output signals. <br>
-              (c) In signal-aware code extraction stage, AST parsing reveals critical dependencies between output
-              signals and intermediate signals to obtain relevant preferred and dispreferred code segments pertinent to
-              the contrastive signals.
+              The proposed QiMeng-SALV comprises three stage: <b>Signal-aware verification</b>, <b>Signal-aware code extraction</b>, and <b>Signal-aware DPO training</b>: <br>
+              <ul>
+                <li>
+                  <b>Signal-aware verification:</b> By generating random input signals and comparing the output signals between the generated module and the reference module in the training set, we identify correct output signals to obtain preference dataset \( 𝑃 = {(𝑦_𝑤, 𝑦_𝑙, 𝑐)} \), where \( 𝑦_𝑤 \) and \( 𝑦_𝑙 \) represent preferred and dispreferred module code respectively, \( 𝑐 \) represent the contrast signal which is correct in \( 𝑦_𝑤 \) and incorrect in \( 𝑦_𝑙 \).
+                </li>
+                <li>
+                  <b>Signal-aware code extraction:</b> Signal-aware Code Extraction: Leveraging abstract syntax tree (AST) analysis, we establish signal dependency graphs and isolate relevant preferred and dispreferred code segments \( ( 𝑆_𝑤^𝑐, 𝑆_𝑙^𝑐  ) \) corresponding to the contrast  signals \( 𝑐 \) from \( 𝑦_𝑤 \)  and \( 𝑦_𝑙 \), respectively.
+                </li>
+                <li>
+                  <b>Signal-aware DPO training:</b> During loss computation, token probabilities are computed only for signal-related code segments in both preferred and dispreferred samples, while probabilities of unrelated tokens are ignored.
+                </li>
+              </ul>
             </p>
+          </div>
+
+          <div class="container is-max-desktop">
+            <img src="./static/images/equation.png" width="60%">
           </div>
 
         </div>
