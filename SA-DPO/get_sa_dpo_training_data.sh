@@ -1,3 +1,4 @@
+mkdir -p Data Models
 ln ../SFT/Data/codev_135k_seed_data.json Data/codev_135k_seed_data.json
 # gen spec seed data
 python gen_spec_seed_data.py --seed_data Data/codev_135k_seed_data.json --save_path Data/codev_135k_seed_data_spec.json

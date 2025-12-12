@@ -4,7 +4,7 @@
 QiMeng-SALV introduces a novel framework for Verilog code generation that shifts reinforcement learning optimization from module-level to signal-level rewards. By leveraging AST analysis and signal-aware verification, it extracts functionally correct code segments from partially incorrect modules, enabling more effective RL training.
 
 Resources:
-- Webpage: https://zy1xxx.github.io/SALV/
+- Webpage: https://qimeng-iprc.github.io/QiMeng-SALV/
 - Paper: https://arxiv.org/abs/2510.19296
 - Model: https://huggingface.co/TabCanNotTab/SALV-Qwen2.5-Coder-7B-Instruct
 - Dataset: https://huggingface.co/datasets/TabCanNotTab/SALV-dataset
@@ -65,49 +65,58 @@ else:
 ## Training
 ### Install
 1. Basic conda environment
-```
-conda create -n SALV python==3.11.0
-conda activate SALV
-pip install -r requirements.txt
-```
+    ```
+    conda create -n SALV python==3.11.0
+    conda activate SALV
+    pip install -r requirements.txt
+    ```
 2. LLaMA-Factory for SALV
-```
-cd LLaMA-Factory
-pip install -e .
-```
+    ```
+    cd LLaMA-Factory
+    pip install -e .
+    ```
 
 3. iverilog and yoysy
-```
-sudo apt install iverilog
-sudo apt install yosys
-```
+    ```
+    sudo apt install iverilog
+    sudo apt install yosys
+    ```
 
-### SFT Training
-1. Prepare training data
-```
-cd SFT
-sh get_sft_training_data.sh
-```
-2. Train SFT model with LLaMA-Factory
-```
-cd LLaMA-Factory
-FORCE_TORCHRUN=1 llamafactory-cli train ../SFT/train_sft.yaml
-```
+### SFT Stage
+1. Download the seed data from https://huggingface.co/datasets/TabCanNotTab/SALV-dataset, and save it to the path `SFT/Data/codev_135k_seed_data.json`
+2. Prepare the training data.
 
-For more details, please refer to `SFT/README.md`.
-### Signal-aware DPO
-1. Prepare training data
-```
-cd SA-DPO
-sh get_sa_dpo_training_data.sh
-```
+    In SFT, we use reject sampling to augment the training data. For a given Verilog design task, multiple correct solutions may exist. Therefore, we generate five candidate responses for each question and add the correct Verilog design responses to the training set.
 
-2. Train SA-DPO model with LLaMA-Factory
-```
-cd LLaMA-Factory
-FORCE_TORCHRUN=1 llamafactory-cli train ../SA-DPO/train_sa_dpo.yaml
-llamafactory-cli export ../SA-DPO/merge_lora.yaml
-```
+    Use the following script to run:
+
+    ```
+    cd SFT
+    sh get_sft_training_data.sh
+    ```
+
+3. Train SFT model with LLaMA-Factory.
+
+    ```
+    cd LLaMA-Factory
+    FORCE_TORCHRUN=1 llamafactory-cli train ../SFT/train_sft.yaml
+    ```
+
+### Signal-aware DPO Stage
+1. Prepare the training data.
+
+    ```
+    cd SA-DPO
+    sh get_sa_dpo_training_data.sh
+    ```
+
+2. Train SA-DPO model with LLaMA-Factory.
+
+    ```
+    cd LLaMA-Factory
+    FORCE_TORCHRUN=1 llamafactory-cli train ../SA-DPO/train_sa_dpo.yaml
+    llamafactory-cli export ../SA-DPO/merge_lora.yaml
+    ```
 
 For more details, please refer to `SA-DPO/README.md`.
 
